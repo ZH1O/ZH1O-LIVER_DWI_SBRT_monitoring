@@ -49,47 +49,48 @@ Scripts
    Outputs: results_fraction.csv, results_dose_bin.csv, delong_comparison.csv,
             AUC figure.
 
+```
+base_path/
+│
+├── patient folder (name=N1=N2)
+│   │
+│   ├── fraction folder (name=N3)
+│   │   │
+│   │   ├── parameter_map/
+│   │   │   ├── ADC.nii.gz
+│   │   │   ├── Dslow.nii.gz
+│   │   │   ├── Dfast.nii.gz
+│   │   │   └── Ffast.nii.gz
+│   │   │
+│   │   ├── RTst_registration/
+│   │   │   └── Tumor.nii.gz
+│   │   │
+│   │   ├── RT/
+│   │   │   └── Dose.nii.gz
+│   │   │
+│   │   └── DWI_registration/
+│   │       ├── 0.nii.gz   (b = 0 s/mm²)
+│   │       ├── 1.nii.gz   (b = 30)
+│   │       ├── 2.nii.gz   (b = 50)
+│   │       ├── 3.nii.gz   (b = 100)
+│   │       ├── 4.nii.gz   (b = 150)
+│   │       ├── 5.nii.gz   (b = 300)
+│   │       ├── 6.nii.gz   (b = 400)
+│   │       └── 7.nii.gz   (b = 500)
+│   │
+│   ├── fraction folder (name=2)
+│   │   └── ...
+│   │
+│   └── fraction folder (name=3)
+│       └── ...
+│
+└── patient folder (name=...)
+    └── ...
+```
 
-Data Structure
---------------
-Expected directory layout:
-
-  base_path/
-  |
-  +-- patient folder (named "name=N1=N2")
-  |     |
-  |     +-- fraction folder (named "name=N3")
-  |           |
-  |           +-- parameter_map/
-  |           |     +-- ADC.nii.gz
-  |           |     +-- Dslow.nii.gz
-  |           |     +-- Dfast.nii.gz
-  |           |     +-- Ffast.nii.gz
-  |           |
-  |           +-- RTst_registration/
-  |           |     +-- Tumor.nii.gz
-  |           |
-  |           +-- RT/
-  |           |     +-- Dose.nii.gz
-  |           |
-  |           +-- DWI_registration/
-  |                 +-- 0.nii.gz   (b = 0 s/mm2)
-  |                 +-- 1.nii.gz   (b = 30)
-  |                 +-- 2.nii.gz   (b = 50)
-  |                 +-- 3.nii.gz   (b = 100)
-  |                 +-- 4.nii.gz   (b = 150)
-  |                 +-- 5.nii.gz   (b = 300)
-  |                 +-- 6.nii.gz   (b = 400)
-  |                 +-- 7.nii.gz   (b = 500)
-
-Patient folder naming: "name=N1=N2"
-  - name: patient identifier
-  - N1:   class label (integer)
-  - N2:   total number of fractions (integer)
-
-Fraction folder naming: "name=N3"
-  - name: same as parent folder
-  - N3:   fraction number (integer, starting from 1)
+Naming conventions:
+- Patient folder: `name=N1=N2` where N1 = class label, N2 = total fractions
+- Fraction folder: `name=N` where N = fraction number (starting from 1)
 
 
 Key Parameters
