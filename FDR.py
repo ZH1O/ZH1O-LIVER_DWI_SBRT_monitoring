@@ -464,7 +464,7 @@ def print_dose_stats(results, param_name):
     w_poor = results['within_poor']
 
     print(f"\n{'='*100}")
-    print(f"  Dose Analysis (Cumulative EQD2, alpha/beta = 10 Gy, D10): {param_name}")
+    print(f"  Dose Analysis (Cumulative EQD2, alpha/beta = 10 Gy, Dmean): {param_name}")
     print(f"{'='*100}")
 
     print(f"\n  1. Between-group (good vs poor, Mann-Whitney U, FDR corrected)")
