@@ -117,7 +117,7 @@ def extract_data_dose_4class(base_path, parameter, func, multi=1, qa_dict=None,
                         Dose = sitk.GetArrayFromImage(sitk.ReadImage(dose_path, sitk.sitkFloat64)).reshape(-1,)
                         roi_dose = Dose[np.where(mask_flat)]
                         if roi_dose.size > 0:
-                            dose_out[fraction_N - 1] = round(np.percentile(roi_dose, 90), 2)
+                            dose_out[fraction_N - 1] = round(np.mean(roi_dose), 2)
                     except Exception:
                         continue
 
