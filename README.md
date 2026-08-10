@@ -55,26 +55,41 @@ Data Structure
 Expected directory layout:
 
   base_path/
-    └── patient_name=XX=XX/
-        ├── fraction_name=1/
-        │   ├── parameter_map/
-        │   │   ├── ADC.nii.gz
-        │   │   ├── Dslow.nii.gz
-        │   │   ├── Dfast.nii.gz
-        │   │   └── Ffast.nii.gz
-        │   ├── RTst_registration/
-        │   │   └── Tumor.nii.gz
-        │   ├── RT/
-        │   │   └── Dose.nii.gz
-        │   └── DWI_registration/
-        │       ├── 0.nii.gz   (b = 0)
-        │       ├── 1.nii.gz   (b = 30)
-        │       └── ... (up to 7.nii.gz)
-        ├── fraction_name=2/
-        └── ...
+  |
+  +-- patient folder (named "name=N1=N2")
+  |     |
+  |     +-- fraction folder (named "name=N3")
+  |           |
+  |           +-- parameter_map/
+  |           |     +-- ADC.nii.gz
+  |           |     +-- Dslow.nii.gz
+  |           |     +-- Dfast.nii.gz
+  |           |     +-- Ffast.nii.gz
+  |           |
+  |           +-- RTst_registration/
+  |           |     +-- Tumor.nii.gz
+  |           |
+  |           +-- RT/
+  |           |     +-- Dose.nii.gz
+  |           |
+  |           +-- DWI_registration/
+  |                 +-- 0.nii.gz   (b = 0 s/mm2)
+  |                 +-- 1.nii.gz   (b = 30)
+  |                 +-- 2.nii.gz   (b = 50)
+  |                 +-- 3.nii.gz   (b = 100)
+  |                 +-- 4.nii.gz   (b = 150)
+  |                 +-- 5.nii.gz   (b = 300)
+  |                 +-- 6.nii.gz   (b = 400)
+  |                 +-- 7.nii.gz   (b = 500)
 
-Patient naming format: "name=XX=XX" where XX values encode class labels and
-total fraction counts (e.g., "Patient001=1=8").
+Patient folder naming: "name=N1=N2"
+  - name: patient identifier
+  - N1:   class label (integer)
+  - N2:   total number of fractions (integer)
+
+Fraction folder naming: "name=N3"
+  - name: same as parent folder
+  - N3:   fraction number (integer, starting from 1)
 
 
 Key Parameters
@@ -83,7 +98,7 @@ Key Parameters
 - EQD₂ formula: EQD₂ = d × (α/β + d) / (α/β + 2)
 - Per-fraction dose: D10 (90th percentile within GTV)
 - Cumulative EQD₂ bins: [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70] Gy
-- QA: SNR thresholds (QIBA), liver parenchyma with 3-voxel erosion
+- QA: SNR thresholds, liver parenchyma with 3-voxel erosion
 - LOOCV: minimum 3 samples per group per bin/fraction
 - FDR correction: Benjamini-Hochberg, α = 0.05
 
