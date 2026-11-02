@@ -14,8 +14,8 @@ complementary monitoring dimensions: fraction-based (time) and cumulative
 EQD2-based (accumulated biological dose), and additionally provides
 tumor-type subgroup analyses (primary liver vs metastasis) and an EQD2
 bin-width sensitivity analysis supporting the 7 Gy bin choice.
-The code is organized as a self-contained analysis library (monitor_lib.py)
-plus a figure-generation program (run_figures.py).
+The code is organized as an analysis library (monitor_lib.py) and a
+figure-generation program (run_figures.py).
 
 Scripts
 -------
@@ -66,10 +66,9 @@ Scripts
      for 6 / 7 / 8 Gy with the n = 3 band-construction floor line.
    - AUC_by_fraction_and_EQD2.png: four-parameter LOOCV AUC by fraction and
      by cumulative-EQD2 bin (bin 0 excluded).
-   Output: figures only.
 
-Data structure (identical to the previous release)
---------------------------------------------------
+Data structure
+--------------
 ```
 base_path/
 │
@@ -123,14 +122,12 @@ Key Parameters
 - Cumulative EQD2 bins: 7 Gy grid [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
   Gy; bin-width sensitivity evaluated over 5-10 Gy (figures: 6/7/8 Gy);
   bin "0" (pre-treatment) is excluded from all dose-axis figures
-- QA: external fraction-level ledger qa_pass.csv (patient, fraction,
-  all_pass); fractions with all_pass = False are excluded during extraction.
-  The QA computation itself (DWI SNR in normal liver parenchyma across
-  b-values) is not part of this package; the ledger is an input.
+- QA: fraction-level ledger qa_pass.csv (patient, fraction, all_pass),
+  derived from DWI SNR checks in normal liver parenchyma across b-values;
+  fractions with all_pass = False are excluded during extraction
 - Subgroups: primary site containing the CJK keywords for liver / HCC /
   bile duct -> Primary liver, otherwise Metastasis (82 lesions = 16 primary
-  + 66 metastasis); read from the clinical Excel at run time (input, not
-  shipped)
+  + 66 metastasis); read from the clinical Excel at run time
 - LOOCV gates: >= 6 valid patients and >= 3 per group per fraction;
   >= 3 per group per bin
 - Statistics: within-group paired Wilcoxon signed-rank vs baseline
@@ -156,9 +153,3 @@ Dependencies
 ------------
 Python 3.12.7, NumPy 1.26.4, SimpleITK 2.4.1, Pandas 2.2.2,
 Matplotlib 3.9.2, SciPy 1.13.1
-(Seaborn and Statsmodels are not required; FDR is implemented internally.)
-
-
-Dependencies
-------------
-Python 3.12.7, NumPy 1.26.4, SimpleITK 2.4.1, Pandas 2.2.2, Matplotlib 3.9.2, Seaborn 0.13.2, SciPy 1.13.1, Statsmodels 0.14.2
