@@ -15,8 +15,7 @@ EQD2-based (accumulated biological dose), and additionally provides
 tumor-type subgroup analyses (primary liver vs metastasis) and an EQD2
 bin-width sensitivity analysis supporting the 7 Gy bin choice.
 The code is organized as a self-contained analysis library (monitor_lib.py)
-plus a figure-generation program (run_figures.py). Only figures are produced;
-no tables, CSVs or other intermediate files are written.
+plus a figure-generation program (run_figures.py).
 
 Scripts
 -------
