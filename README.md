@@ -24,48 +24,56 @@ Scripts
    - Extraction: per-fraction GTV mean of each IVIM parameter and the GTV
      mean dose (Dmean); cumulative EQD2 bookkeeping (alpha/beta = 10 Gy);
      QA filtering through an external fraction-level QA ledger (qa_pass.csv).
-   - Monitoring bands: separated response / non-response filled bands with
-     split lines (IQR-based, stepwise separation of overlapping bands).
+   - Monitoring bands: response / non-response filled bands with
+     IQR-anchored edges. The split line is the raw Youden-optimal threshold
+     (max Se + Sp - 1), computed per parameter and time point; it is not
+     constrained to the band boundary and is not clipped.
    - Band direction protocol: global band orientation = majority vote of the
      local orientations over all fractions / dose bins (ties resolved with
-     all time points pooled); a time point may deviate from the global
-     orientation (flip) ONLY if a within-group comparison versus baseline
-     (fraction 1 / 0 Gy bin) is significant (paired Wilcoxon, BH-FDR
-     q < 0.05); there is no whole-time-point flip at AUC < 0.5.
-   - LOOCV scoring: leave-one-out bands per fraction and per EQD2 bin; a fold
-     score is inverted when the fold band orientation differs from the
-     effective direction of that time point.
+     all time points pooled). A time point may deviate from the global
+     orientation (flip) ONLY if the between-group comparison at that time
+     point (response vs non-response, Mann-Whitney U, BH-FDR q < 0.05) is
+     significant. There is no whole-time-point flip at AUC < 0.5.
+   - LOOCV scoring: leave-one-out bands and Youden split lines per fraction
+     and per EQD2 bin; a fold score is inverted when the fold band
+     orientation differs from the effective direction of that time point.
    - Statistics: within-group paired Wilcoxon signed-rank versus baseline
      (unified threshold n_pairs >= 3 for both groups); between-group
      Mann-Whitney U; Benjamini-Hochberg FDR (families: within = response +
      non-response combined; between = all fractions / bins).
-   - AUC / ROC: DeLong AUC with 95% CI; ROC curves; subgroup evaluation
-     subsets (Overall / Metastasis / Primary liver; LOOCV training always
-     uses the full cohort).
+   - AUC: DeLong AUC with 95% CI; subgroup evaluations (Overall /
+     Metastasis / Primary liver) use the same LOOCV scores. ROC panels are
+     deliberately not produced: a whole-course mean-score ROC is not the
+     longitudinal per-time-point analysis.
    - Plotting helpers implementing the project figure style (Times New
-     Roman, 18 pt labels/ticks, spine linewidth 0.8, six evenly spaced y
-     ticks, per-row frame alignment, framed bottom legends).
+     Roman, 18 pt axis labels, 16 pt tick labels and legends, spine
+     linewidth 0.8, six evenly spaced y ticks, per-row frame alignment,
+     framed bottom legends).
 
 2. run_figures.py
    Generates all figures (dpi = 1000) into figures/:
    - final_bands_fraction_and_EQD2_with_cases.png: 4 parameters x
-     (fraction final bands | cumulative-EQD2 final bands), overlaid with two
+     (fraction bands | cumulative-EQD2 bands), overlaid with two
      representative case trajectories (response / non-response).
    - grouped_boxplots_fraction_and_EQD2_with_significance.png: per-fraction
      and per-bin grouped box plots (Overall gray / Response / Non-response)
      with significance stars above boxes (within-group vs baseline) and
      brackets between the Response and Non-response boxes (between-group).
-   - subgroup_ROC_and_AUC_by_fraction.png and
-     subgroup_ROC_and_AUC_by_EQD2.png: tumor-type subgroup patient-level ROC
-     curves (whole-course mean score) and LOOCV AUC trajectories per fraction
-     / per cumulative-EQD2 bin (bin 0 excluded).
+   - subgroup_AUC_by_fraction_and_EQD2.png: tumor-type subgroup LOOCV AUC
+     trajectories, 4 parameters x (fraction | cumulative EQD2), with
+     Overall / Metastasis / Primary liver lines; no ROC panels.
+   - subgroup_accuracy_by_fraction_and_EQD2.png: tumor-type subgroup LOOCV
+     accuracy at score >= 0.5, same 4 x 2 layout and scopes.
+   - monitor_accuracy_by_fraction_and_EQD2.png: overall-cohort LOOCV
+     accuracy, two stacked panels (fraction | cumulative EQD2), four
+     parameter lines.
    - bin_width_sensitivity_AUC.png: LOOCV AUC versus cumulative-EQD2 bins
-     for 6 / 7 / 8 Gy bin widths (7 Gy marked primary); non-evaluable bins
-     marked with gray crosses.
+     for 6 / 7 / 8 Gy bin widths; 7 Gy is the main analysis and is shown in
+     bold; non-evaluable bins are marked with gray crosses.
    - bin_width_sample_counts.png: per-bin responder / non-responder counts
      for 6 / 7 / 8 Gy with the n = 3 band-construction floor line.
    - AUC_by_fraction_and_EQD2.png: four-parameter LOOCV AUC by fraction and
-     by cumulative-EQD2 bin (bin 0 excluded).
+     by cumulative-EQD2 bin (bin 0 included as the baseline time point).
 
 Data structure
 --------------
@@ -120,8 +128,9 @@ Key Parameters
 - EQD2 formula: EQD2 = d × (α/β + d) / (α/β + 2)
 - Per-fraction dose metric: Dmean (arithmetic mean over GTV voxels)
 - Cumulative EQD2 bins: 7 Gy grid [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
-  Gy; bin-width sensitivity evaluated over 5-10 Gy (figures: 6/7/8 Gy);
-  bin "0" (pre-treatment) is excluded from all dose-axis figures
+  Gy; bin-width sensitivity is computed over 5–10 Gy and plotted for
+  6 / 7 / 8 Gy. Bin "0" (pre-treatment) is included as the baseline time
+  point in all dose-axis figures.
 - QA: fraction-level ledger qa_pass.csv (patient, fraction, all_pass),
   derived from DWI SNR checks in normal liver parenchyma across b-values;
   fractions with all_pass = False are excluded during extraction
@@ -135,7 +144,10 @@ Key Parameters
   Benjamini-Hochberg FDR, α = 0.05
 - Band direction protocol: global orientation by majority vote over all
   time points; flipping allowed only at time points with a significant
-  within-group vs-baseline difference (FDR q < 0.05); no AUC < 0.5 whole flip
+  between-group difference (response vs non-response, FDR q < 0.05);
+  no AUC < 0.5 whole flip
+- Split line: Youden-optimal threshold (max Se + Sp - 1), not clipped and
+  not forced to coincide with the band edge
 - Significance stars: * p < 0.05, ** p < 0.01, *** p < 0.001 (FDR-adjusted)
 - AUC confidence intervals: DeLong
 
@@ -143,8 +155,9 @@ Output Files
 ------------
 figures/final_bands_fraction_and_EQD2_with_cases.png
 figures/grouped_boxplots_fraction_and_EQD2_with_significance.png
-figures/subgroup_ROC_and_AUC_by_fraction.png
-figures/subgroup_ROC_and_AUC_by_EQD2.png
+figures/subgroup_AUC_by_fraction_and_EQD2.png
+figures/subgroup_accuracy_by_fraction_and_EQD2.png
+figures/monitor_accuracy_by_fraction_and_EQD2.png
 figures/bin_width_sensitivity_AUC.png
 figures/bin_width_sample_counts.png
 figures/AUC_by_fraction_and_EQD2.png
